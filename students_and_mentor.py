@@ -31,6 +31,30 @@ class Student:
                 f"\nКурсы в процессе изучения: {', '.join(self.courses_in_progress)}"
                 f"\nЗавершенные курсы: {', '.join(self.finished_courses)}")
 
+    def __eq__(self, other):
+        if self.average_homework_grade == other.average_homework_grade:
+            return f"{self.name} имеет среднюю оценку за домашние задания, равную {other.name}"
+        else:
+            return f"{self.name} и {other.name} имеют разные средние оценки за домашние задания"
+
+    def __ne__(self, other): # необходим, т.к. вызов != не обратен ==(__eq__) а вызывает 'not a == b'
+        if self.average_homework_grade != other.average_homework_grade:
+            return f"{self.name} и {other.name} имеют разную среднюю оценку за домашние задания"
+        else:
+            return f"{self.name} и {other.name} имеют одинаковую среднюю оценку за домашние задания"
+
+    def __lt__(self, other):
+        if self.average_homework_grade < other.average_homework_grade:
+            return f"{self.name} имеет оценку ниже за домашние задания, чем {other.name}"
+        else:
+            return f"{self.name} имеет оценку выше за домашние задания, чем {other.name}"
+
+    def __le__(self, other):
+        if self.average_homework_grade <= other.average_homework_grade:
+            return f"{self.name} имеет оценку ДЗ ниже или равную оценке {other.name}"
+        else:
+            return f"{self.name} имеет оценку ДЗ выше или равную оценке {other.name}"
+
 class Mentor:
     def __init__(self, name, surname):
         self.name = name
@@ -44,17 +68,41 @@ class Lecturer(Mentor):
         self.courses_in_progress = []
         self.grades = {}
 
+    @property
+    def average_lecture_grade(self):
+        avg_lecture_grades = {course: sum(grades) / len(grades) if grades else 0 for course, grades in
+                                self.grades.items()}
+        avg_lecture_grade = sum(avg_lecture_grades.values()) / len(avg_lecture_grades) if avg_lecture_grades else 0
+        return avg_lecture_grade
+
     def __str__(self):
         sum_grades = sum(sum(grades) / len(grades) for grades in self.grades.values())
         avg_lecture_grade = sum_grades / len(self.grades) if self.grades else 0
         return f"Имя: {self.name}\nФамилия: {self.surname}\nСредняя оценка за лекции: {avg_lecture_grade:.1f}"
 
-    @property
-    def average_lecture_grade(self):
-        avg_lecture_grades = {course: sum(grades) / len(grades) if grades else 0 for course, grades in
-                              self.grades.items()}
-        avg_lecture_grade = sum(avg_lecture_grades.values()) / len(avg_lecture_grades) if avg_lecture_grades else 0
-        return avg_lecture_grade
+    def __eq__(self, other):
+        if self.average_lecture_grade == other.average_lecture_grade:
+            return f"{self.name} имеет среднюю оценку за лекции, равную {other.name}"
+        else:
+            return f"{self.name} и {other.name} имеют разные средние оценки за лекции"
+
+    def __ne__(self, other): # необходим, т.к. вызов != не обратен ==(__eq__) а вызывает 'not a == b'
+        if self.average_lecture_grade != other.average_lecture_grade:
+            return f"{self.name} и {other.name} имеют разную среднюю оценку за домашние задания"
+        else:
+            return f"{self.name} и {other.name} имеют одинаковую среднюю оценку за домашние задания"
+
+    def __lt__(self, other):
+        if self.average_lecture_grade < other.average_lecture_grade:
+            return f"{self.name} имеет оценку ниже за лекции, чем {other.name}"
+        else:
+            return f"{self.name} имеет оценку выше за лекции, чем {other.name}"
+
+    def __le__(self, other):
+        if self.average_lecture_grade <= other.average_lecture_grade:
+            return f"{self.name} имеет оценку за лекции ниже или равную оценке {other.name}"
+        else:
+            return f"{self.name} имеет оценку за лекции выше или равную оценке {other.name}"
 
 
 class Reviewer(Mentor):
@@ -78,23 +126,6 @@ def average_homework_grade(students, course):
 def average_lecture_grade(lecturers, course):
     grades = [grade for lecturer in lecturers for grade in lecturer.grades.get(course, [])]
     return f"Средняя оценка лектора: {round(sum(grades) / len(grades) if grades else 0, 1)}"
-
-def compare_grades_student(student1, student2):
-    if student1.average_homework_grade > student2.average_homework_grade:
-        return f"Средний балл студента {student1.name} выше {student2.name}"
-    elif student1.average_homework_grade == student2.average_homework_grade:
-        return f"Средний балл студентов {student1.name} и {student2.name} одинаков"
-    else:
-        return f"Средний балл студента {student1.name} ниже {student2.name}"
-
-def compare_grades_lecturer(lecturer1, lecturer2):
-    if lecturer1.average_lecture_grade > lecturer2.average_lecture_grade:
-        return f"Средний балл лектора {lecturer1.name} выше {lecturer2.name}"
-    elif lecturer1.average_lecture_grade == lecturer2.average_lecture_grade:
-        return f"Средний балл лекторов {lecturer1.name} и {lecturer2.name} одинаков"
-    else:
-        return f"Средний балл лектора {lecturer1.name} ниже {lecturer2.name}"
-
 
 
 # Создание экземпляров
@@ -137,5 +168,15 @@ print(student1)
 print(student2)
 print(lecturer1)
 print(reviewer1)
-print(compare_grades_student(student1, student2))
-print(compare_grades_lecturer(lecturer1, lecturer2))
+print(student1 == student2) # Сравниваем студентов по средней оценке за домашние задания
+print(student1 != student2)
+print(student1 > student2)
+print(student1 >= student2)
+print(student1 < student2)
+print(student1 <= student2)
+print(lecturer1 == lecturer2) # Сравниваем лекторов по средней оценке за лекции
+print(lecturer1 != lecturer2)
+print(lecturer1 > lecturer2)
+print(lecturer1 >= lecturer2)
+print(lecturer1 < lecturer2)
+print(lecturer1 <= lecturer2)
